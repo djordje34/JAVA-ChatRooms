@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
+<jardesc>
+    <jar path="JavaNetComm/jars/z5/chatClient.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/JavaNetComm/src/rs/raf/pds/v4/z5/chatClient.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=JavaNetComm/src&lt;rs.raf.pds.v4.z5{ChatClient.java[ChatClient" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <folder path="/JavaNetComm/lib"/>
+        <javaElement handleIdentifier="=JavaNetComm/src&lt;rs.raf.pds.v4.z5{ChatClient.java"/>
+        <javaElement handleIdentifier="=JavaNetComm/src&lt;rs.raf.pds.v4.z5.messages"/>
+    </selectedElements>
+</jardesc>
