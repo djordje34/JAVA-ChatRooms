@@ -177,11 +177,35 @@ public class ChatServer implements Runnable {
                             String editedText = pts[2];
                             editChatRoomMessage(connection, originalMessage, editedText);
                             break;
+                            
+                        case "/GETMOREMESSAGES":
+                            if (parts.length >= 2) {
+                                String roomName = parts[1];
+                                int num =Integer.parseInt(parts[2]);
+                                getMoreMessages(roomName, connection, num);
+                            }
+                            break;
                     }
                 }
             }
             
+            private void getMoreMessages(String roomName, Connection connection, int num) {
+                List<ChatMessage> messages = getChatRoomMessages(roomName);
+                if (messages != null) {
+                    int maxMessages = num; // Adjust this value based on your requirements
+                    int startIndex = Math.max(0, messages.size() - maxMessages);
+                    List<ChatMessage> lastMessages = messages.subList(startIndex, messages.size());
+
+                    for (ChatMessage message : lastMessages) {
+                        connection.sendTCP(message);
+                    }
+                } else {
+                    connection.sendTCP(new InfoMessage("Chat room '" + roomName + "' has no messages yet."));
+                }
+            }
+            
             private void editChatRoomMessage(Connection connection, String originalMessage, String editedText) {
+            	
             	String[] parts = originalMessage.split(":", 2);
                 if (parts.length == 2) {
                     String username = connectionUserMap.get(connection);
@@ -189,8 +213,9 @@ public class ChatServer implements Runnable {
                     String originalText = parts[1].trim();
                     String editedMessage = editedText;
                     updateChatRoomsMessages(username, originalText, editedMessage);
-                    ChatMessage old = new ChatMessage(username,originalText,room);
+                    ChatMessage old = new ChatMessage(username,originalText,room, true);
                     broadcastEditedMessage(username, editedMessage,old);
+                    System.out.println("Stara poruka header:"+old.getTxt());
                 } else {
                     connection.sendTCP(new InfoMessage("Invalid message format."));
                 }
@@ -209,7 +234,7 @@ public class ChatServer implements Runnable {
                                     String updatedText = message.getTxt().substring(0, startIdx + 4) + editedMsg;
                                     message.setTxt(updatedText);
                                 } else {
-                                    message.setTxt(editedText);
+                                    message.setTxt(editedText +" (Ed.)");
                                 }
                                 break;
                             }
@@ -221,8 +246,11 @@ public class ChatServer implements Runnable {
             
             private void broadcastEditedMessage(String username, String editedText, ChatMessage og) {
                 String chatRoom = userActiveRoomsMap.get(username);
-                ChatMessage editedMessage = new ChatMessage(username, editedText, chatRoom);
-                if(editedText.contains("replied to message:\\n(**")) editedMessage.setReply(true);
+                ChatMessage editedMessage = new ChatMessage(username, editedText, chatRoom, true);
+                System.out.println("OG:"+og.getTxt()+og.getTxt().contains("replied to message:\n(**"));
+                editedMessage.setTxt(editedText+" (Ed.)");
+                System.out.println("EditedText:"+editedText);
+                if(og.getTxt().contains("replied to message:\n(**")) editedMessage.setReply(true);
                 List<ChatMessage> ls = new ArrayList<>();
                 ls.add(og);
                 ls.add(editedMessage);

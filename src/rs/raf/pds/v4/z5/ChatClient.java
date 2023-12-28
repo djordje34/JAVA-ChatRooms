@@ -88,6 +88,7 @@ public class ChatClient implements Runnable {
                     	String[] parts = message.getTxt().split(": ");
                     	String room = parts[1].trim();
                     	setActiveRoom(room);
+                        client.sendTCP("/GETMOREMESSAGES"+" "+ activeRoom + " 5");
                     	return;
                     }
                     
@@ -252,6 +253,12 @@ public class ChatClient implements Runnable {
         else if(userInput.toUpperCase().startsWith("/EDIT~")) {
         	client.sendTCP(userInput);
         	
+        }
+        else if(userInput.toUpperCase().startsWith("/GETMOREMESSAGES")) {
+        	String[] parts = userInput.split(" ");
+        	String command = parts[0].toUpperCase();
+
+        	client.sendTCP(userInput.toUpperCase()+" "+ activeRoom + " " + "2147483647");
         }
         else {
             ChatMessage message = new ChatMessage(userName, userInput, activeRoom);

@@ -261,14 +261,17 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
     @Override
     public void handleMessageUpdate(ChatMessage oldMessage, ChatMessage message, String room) {
         Platform.runLater(() -> {
-        	String messageText = "("+message.getChatRoom()+") "+ message.getUser() + ": " + message.getTxt() + " (Ed.)";
-            if(message.getReply()) {
+        	//String messageText = "("+message.getChatRoom()+") "+ message.getUser() + ": " + message.getTxt() + " (Ed.)";
+        	String messageText = message.format().trim();
+        	System.out.println("REPLY:"+message.getReply());
+        	if(message.getReply()) {
             	handleReplyUpdate(oldMessage, messageText);
             }
             else {
             	for (int i = 0; i < messageListView.getItems().size(); i++) {
                     String existingMessage = messageListView.getItems().get(i);
-                    	if(existingMessage.split(":")[1].trim().equalsIgnoreCase(oldMessage.getTxt())) {
+                    System.out.println(oldMessage.format().trim()+"|||"+existingMessage.trim());
+                    	if(existingMessage.trim().equalsIgnoreCase(oldMessage.format().trim())) {
                         messageListView.getItems().set(i, messageText);
                         break;
                     	}
@@ -282,12 +285,19 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         Platform.runLater(() -> {
             for (int i = 0; i < messageListView.getItems().size(); i++) {
                 String existingMessage = messageListView.getItems().get(i);
-                if (oldMessage.format().trim().equalsIgnoreCase(existingMessage.trim())) {
+                if (existingMessage.trim().equalsIgnoreCase(oldMessage.format().trim())) {
                 	String pattern = "**)\n";
 
                 	int lastIndex = oldMessage.format().lastIndexOf(pattern);
                 	if(lastIndex != -1) {
-                		messageListView.getItems().set(i, oldMessage.format().substring(0, lastIndex+pattern.length()) + updatedMessageText);
+                		String editedMsg = updatedMessageText;
+                        //String updatedText = oldMessage.getTxt().substring(0, lastIndex + 4) + editedMsg;
+                        //oldMessage.setTxt(updatedText);
+                		 System.out.println(oldMessage.format().substring(0, lastIndex+10)+ "|" + updatedMessageText);
+                		messageListView.getItems().set(i, oldMessage.format().substring(0, lastIndex+4) + updatedMessageText);
+                	}
+                	else {
+                		messageListView.getItems().set(i,  updatedMessageText);
                 	}
                     break;
                 }
