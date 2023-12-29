@@ -34,7 +34,7 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
     private Label activeRoomLabel;
     private final String cssPath = "/rs/raf/pds/v4/z5/resources/styles.css";
     private String lastSelectedMessage = null;
-
+    private String lastSelectedUser = null;
     public static void main(String[] args) {
         launch(args);
     }
@@ -90,14 +90,21 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         
         messageListView.setOnMouseClicked(event -> {
             String selectedMessage = messageListView.getSelectionModel().getSelectedItem();
+            userListView.getSelectionModel().clearSelection();
+            lastSelectedUser = null;
             if (selectedMessage != null) {
-                if (selectedMessage.equals(lastSelectedMessage)) {
+            	if(selectedMessage.startsWith("Server:")) {
+                	messageListView.getSelectionModel().clearSelection();
+                    lastSelectedMessage = null;
+                    return;
+                }
+            	else if (selectedMessage.equals(lastSelectedMessage)) {
                     messageListView.getSelectionModel().clearSelection();
                     lastSelectedMessage = null;
                 } else {
                     lastSelectedMessage = selectedMessage;
                 }
-                processUserInput();
+                //processUserInput();
             }
         });
 
@@ -112,6 +119,27 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         userListView = new ListView<>();
         userListView.setPrefHeight(720);
         userListView.setMaxWidth(240);
+        
+        userListView.setOnMouseClicked(event -> {
+            String selectedUser = userListView.getSelectionModel().getSelectedItem();
+            messageListView.getSelectionModel().clearSelection();
+            lastSelectedMessage = null;
+            
+            if (selectedUser != null) {
+            	if (selectedUser.equals(lastSelectedUser)) {
+            		userListView.getSelectionModel().clearSelection();
+                    lastSelectedUser = null;
+                } else {
+                    lastSelectedUser = selectedUser;
+                }
+            	String userInput = inputField.getText().trim();
+                if (!userInput.isEmpty()) {
+                		//chatClient.sendPrivateMessage(selectedUser, userInput);
+            }
+            }
+        });
+
+        
         activeRoomLabel = new Label("" + activeRoom);
         VBox userListVBox = new VBox(activeRoomLabel, userListView);
         userListVBox.setAlignment(Pos.CENTER);
@@ -222,7 +250,7 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
             int red = (hashCode & 0xFF0000) >> 16;
             int green = (hashCode & 0x00FF00) >> 8;
             int blue = hashCode & 0x0000FF;
-            return String.format("-fx-text-fill: rgb(%d, %d, %d);font-weight: bold;", red, green, blue);
+            return String.format("-fx-text-fill: rgb(%d, %d, %d);font-weight: 600;", red, green, blue);
         }
     }
 
@@ -246,12 +274,24 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         String userInput = inputField.getText().trim();
         if (!userInput.isEmpty()) {
         	if(lastSelectedMessage == null) {
+        		if(lastSelectedUser != null) {
+        			chatClient.sendPrivateMessage(lastSelectedUser, userInput);
+        		}
+        		else {
         		chatClient.processUserInput(userInput, activeRoom);
+        		}
         	}
         	else {
- 
+        		if(lastSelectedMessage.startsWith("Private message from")) {
+        			String[] parts = lastSelectedMessage.split(":",2)[0].split(" ");
+        			String from = parts[parts.length-1];
+        			String to = chatClient.userName;
+        			chatClient.sendPrivateMessage(from, "replied to message:\n(**"+lastSelectedMessage+"**)\n"+userInput);
+        		}
+        		else {
         		chatClient.processUserInput("replied to message:\n(**"+lastSelectedMessage+"**)\n"+userInput, activeRoom);
-        	}
+        		}
+        		}
         	messageListView.getSelectionModel().clearSelection();
             lastSelectedMessage = null;
         }
@@ -263,14 +303,12 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         Platform.runLater(() -> {
         	//String messageText = "("+message.getChatRoom()+") "+ message.getUser() + ": " + message.getTxt() + " (Ed.)";
         	String messageText = message.format().trim();
-        	System.out.println("REPLY:"+message.getReply());
         	if(message.getReply()) {
             	handleReplyUpdate(oldMessage, messageText);
             }
             else {
             	for (int i = 0; i < messageListView.getItems().size(); i++) {
                     String existingMessage = messageListView.getItems().get(i);
-                    System.out.println(oldMessage.format().trim()+"|||"+existingMessage.trim());
                     	if(existingMessage.trim().equalsIgnoreCase(oldMessage.format().trim())) {
                         messageListView.getItems().set(i, messageText);
                         break;
@@ -293,7 +331,6 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
                 		String editedMsg = updatedMessageText;
                         //String updatedText = oldMessage.getTxt().substring(0, lastIndex + 4) + editedMsg;
                         //oldMessage.setTxt(updatedText);
-                		 System.out.println(oldMessage.format().substring(0, lastIndex+10)+ "|" + updatedMessageText);
                 		messageListView.getItems().set(i, oldMessage.format().substring(0, lastIndex+4) + updatedMessageText);
                 	}
                 	else {

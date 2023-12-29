@@ -5,6 +5,20 @@
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
 }
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+  -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
+  -fx-text-fill: white;
+}
+
+.list-cell:odd {
+  -fx-background-color: #373e43;
+}
+
+.list-cell:filled:hover {
+  -fx-background-color: #323232;
+  -fx-text-fill: white;
+}
+
 
 .label{
     -fx-text-fill: lightgray;

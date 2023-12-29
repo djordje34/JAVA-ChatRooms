@@ -215,7 +215,6 @@ public class ChatServer implements Runnable {
                     updateChatRoomsMessages(username, originalText, editedMessage);
                     ChatMessage old = new ChatMessage(username,originalText,room, true);
                     broadcastEditedMessage(username, editedMessage,old);
-                    System.out.println("Stara poruka header:"+old.getTxt());
                 } else {
                     connection.sendTCP(new InfoMessage("Invalid message format."));
                 }
@@ -226,6 +225,7 @@ public class ChatServer implements Runnable {
                 chatRoomsMessages.compute(chatRoom, (key, messages) -> {
                     if (messages != null) {
                         for (ChatMessage message : messages) {
+                        	System.out.println(originalText+"~"+message.getTxt());
                             if (originalText.equalsIgnoreCase(message.getTxt())) {
                                 int startIdx = message.getTxt().lastIndexOf("**)\n");
 
@@ -247,9 +247,7 @@ public class ChatServer implements Runnable {
             private void broadcastEditedMessage(String username, String editedText, ChatMessage og) {
                 String chatRoom = userActiveRoomsMap.get(username);
                 ChatMessage editedMessage = new ChatMessage(username, editedText, chatRoom, true);
-                System.out.println("OG:"+og.getTxt()+og.getTxt().contains("replied to message:\n(**"));
                 editedMessage.setTxt(editedText+" (Ed.)");
-                System.out.println("EditedText:"+editedText);
                 if(og.getTxt().contains("replied to message:\n(**")) editedMessage.setReply(true);
                 List<ChatMessage> ls = new ArrayList<>();
                 ls.add(og);
