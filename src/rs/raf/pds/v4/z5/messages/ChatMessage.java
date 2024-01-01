@@ -14,7 +14,8 @@ public class ChatMessage {
     //time!!!
     private boolean reply = false;
     public boolean isStamped = false;
-    protected ChatMessage() {
+    public boolean noNeed = false;
+    public ChatMessage() {
 
     }
 
@@ -43,13 +44,19 @@ public ChatMessage(String user, String txt, String chatRoom, boolean stamped) {
     public String getUser() {
         return user;
     }
+    public void setStamped(boolean b) {
+    	isStamped = b;
+    }
     
     public void setTxt(String txt) {
     	Date date = Calendar.getInstance().getTime();  
         DateFormat dateFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");  
         strDate = dateFormat.format(date);  
         this.val = txt;
-    	this.txt = val + " ["+strDate+"]";
+        if (!isStamped)
+        	this.txt = val + " ["+strDate+"]";
+        else
+        	this.txt = val;
     }
     public String getTxt() {
         return txt;

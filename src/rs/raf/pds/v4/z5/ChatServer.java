@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.esotericsoftware.kryonet.Connection;
@@ -220,12 +221,23 @@ public class ChatServer implements Runnable {
                 }
             }
             
+            private String replaceBetweenMarkers(String input, String startMarker, String endMarker, String replacement) {
+                String escapedStartMarker = Pattern.quote(startMarker);
+                String escapedEndMarker = Pattern.quote(endMarker);
+                String[] parts = input.split(escapedStartMarker, 2);
+                if (parts.length > 1) {
+                    String[] secondParts = parts[1].split(escapedEndMarker, 2);
+                    if (secondParts.length > 1) {
+                        return parts[0] + startMarker + replacement + endMarker + secondParts[1];
+                    }
+                }
+                return input;
+            }
             private void updateChatRoomsMessages(String username, String originalText, String editedText) {
                 String chatRoom = userActiveRoomsMap.get(username);
                 chatRoomsMessages.compute(chatRoom, (key, messages) -> {
                     if (messages != null) {
                         for (ChatMessage message : messages) {
-                        	System.out.println(originalText+"~"+message.getTxt());
                             if (originalText.equalsIgnoreCase(message.getTxt())) {
                                 int startIdx = message.getTxt().lastIndexOf("**)\n");
 
@@ -236,8 +248,14 @@ public class ChatServer implements Runnable {
                                 } else {
                                     message.setTxt(editedText +" (Ed.)");
                                 }
-                                break;
                             }
+                            if(message.getTxt().contains(originalText)){
+                            	ChatMessage temp = new ChatMessage(username,editedText+ " (Ed.)", chatRoom);
+                            	String tobe = temp.getTxt();
+                            	message.setStamped(true);
+                            	message.setTxt(replaceBetweenMarkers(message.getTxt(), "(**("+chatRoom+") "+username+": ", "**)", tobe));
+                            }
+                            
                         }
                     }
                     return messages;

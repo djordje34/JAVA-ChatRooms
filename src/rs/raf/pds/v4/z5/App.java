@@ -3,6 +3,7 @@ package rs.raf.pds.v4.z5;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -311,12 +312,29 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
                     String existingMessage = messageListView.getItems().get(i);
                     	if(existingMessage.trim().equalsIgnoreCase(oldMessage.format().trim())) {
                         messageListView.getItems().set(i, messageText);
-                        break;
+                        
+                    	}
+                    	else if(existingMessage.trim().contains(oldMessage.format().trim())) {
+                    		messageListView.getItems().set(i, replaceBetweenMarkers(existingMessage.trim(), "(**("+chatClient.getActiveRoom()+") "+chatClient.userName+": ", "**)", message.getTxt()));
                     	}
                     }
             }
             
         });
+    }
+    
+    
+    private String replaceBetweenMarkers(String input, String startMarker, String endMarker, String replacement) {
+        String escapedStartMarker = Pattern.quote(startMarker);
+        String escapedEndMarker = Pattern.quote(endMarker);
+        String[] parts = input.split(escapedStartMarker, 2);
+        if (parts.length > 1) {
+            String[] secondParts = parts[1].split(escapedEndMarker, 2);
+            if (secondParts.length > 1) {
+                return parts[0] + startMarker + replacement + endMarker + secondParts[1];
+            }
+        }
+        return input;
     }
     
     private void handleReplyUpdate(ChatMessage oldMessage, String updatedMessageText) {
@@ -325,7 +343,6 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
                 String existingMessage = messageListView.getItems().get(i);
                 if (existingMessage.trim().equalsIgnoreCase(oldMessage.format().trim())) {
                 	String pattern = "**)\n";
-
                 	int lastIndex = oldMessage.format().lastIndexOf(pattern);
                 	if(lastIndex != -1) {
                 		String editedMsg = updatedMessageText;
