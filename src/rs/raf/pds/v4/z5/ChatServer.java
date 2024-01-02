@@ -34,6 +34,7 @@ public class ChatServer implements Runnable {
     private final ConcurrentMap<String, List<Connection>> chatRooms = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> userActiveRoomsMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, List<ChatMessage>> chatRoomsMessages = new ConcurrentHashMap<>();
+    private final List<PrivateMessage> privateMessagesList = new CopyOnWriteArrayList<>();
     
     public ChatServer(int portNumber) {
         this.server = new Server();
@@ -82,11 +83,11 @@ public class ChatServer implements Runnable {
                     PrivateMessage privateMessage = (PrivateMessage) object;
                     String recipient = privateMessage.getRecipient();
                     Connection recipientConnection = userConnectionMap.get(recipient);
-                    
                     if (recipientConnection != null && recipientConnection.isConnected()) {
                         recipientConnection.sendTCP(privateMessage);
                         System.out.println("Private message from " + privateMessage.getUser() + " to " + recipient +": " + privateMessage.getTxt());
                         connection.sendTCP(new InfoMessage("Private message sent to " + recipient));
+                        privateMessagesList.add(privateMessage);
                     } else {
                         connection.sendTCP(new InfoMessage("User " + recipient + " is not online."));
                     }

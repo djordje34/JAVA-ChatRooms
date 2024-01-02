@@ -258,7 +258,7 @@ public class ChatClient implements Runnable {
         	String[] parts = userInput.split(" ");
         	String command = parts[0].toUpperCase();
 
-        	client.sendTCP(userInput.toUpperCase()+" "+ activeRoom + " " + "2147483647");
+        	client.sendTCP(command.toUpperCase()+" "+ activeRoom + " " + "2147483647");
         }
         else {
             ChatMessage message = new ChatMessage(userName, userInput, activeRoom);

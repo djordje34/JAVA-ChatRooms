@@ -12,7 +12,7 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <folder path="/JavaNetComm/lib"/>
-        <javaElement handleIdentifier="=JavaNetComm/src&lt;rs.raf.pds.v4.z5{ChatServer.java"/>
         <javaElement handleIdentifier="=JavaNetComm/src&lt;rs.raf.pds.v4.z5.messages"/>
+        <javaElement handleIdentifier="=JavaNetComm/src&lt;rs.raf.pds.v4.z5{ChatServer.java"/>
     </selectedElements>
 </jardesc>

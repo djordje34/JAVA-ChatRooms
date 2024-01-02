@@ -68,6 +68,12 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
             showErrorDialog("Please enter a valid username.");
             return;
         }
+        String usernameRegex = "^[a-zA-Z0-9_]+$";
+
+        if (!username.matches(usernameRegex)) {
+            showErrorDialog("Invalid username format. Use only alphanumeric characters and underscores.");
+            return;
+        }
 
         chatClient = new ChatClient("localhost", 4555, username, this);
 
@@ -113,6 +119,11 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         inputField.setPrefWidth(720);
         inputField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
+            	String userInput = inputField.getText().trim();
+                if (userInput.contains("~")) {
+                    showErrorDialog("Invalid character '~' in the message. Please remove it.");
+                    return;
+                }
                 processUserInput();
             }
         });
@@ -306,6 +317,7 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
         	String messageText = message.format().trim();
         	if(message.getReply()) {
             	handleReplyUpdate(oldMessage, messageText);
+            	return;
             }
             else {
             	for (int i = 0; i < messageListView.getItems().size(); i++) {
@@ -315,7 +327,8 @@ public class App extends Application implements ChatClient.ChatMessageCallback {
                         
                     	}
                     	else if(existingMessage.trim().contains(oldMessage.format().trim())) {
-                    		messageListView.getItems().set(i, replaceBetweenMarkers(existingMessage.trim(), "(**("+chatClient.getActiveRoom()+") "+chatClient.userName+": ", "**)", message.getTxt()));
+                    		//messageListView.getItems().set(i, existingMessage.trim().replaceAll(oldMessage.format().trim(),message.getTxt()));
+                    		messageListView.getItems().set(i, replaceBetweenMarkers(existingMessage.trim(), "(**("+chatClient.getActiveRoom()+") "+message.getUser()+": ", "**)", message.getTxt()));
                     	}
                     }
             }
