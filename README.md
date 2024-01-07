@@ -1,7 +1,7 @@
 # JAVA-ChatRooms
 Java ChatRooms GUI app
 
-This is an enhanced chat application developed as part of an exercise. Users can send private messages, create chat rooms, and perform various actions on the chat server.
+This is an enhanced chat application developed as part of an exercise/exam. Users can send private messages, create chat rooms, and perform various actions on the chat server.
 
 ## Features
 
