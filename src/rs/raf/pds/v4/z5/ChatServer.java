@@ -109,6 +109,10 @@ public class ChatServer implements Runnable {
                         case "/CREATE":
                             if (parts.length >= 2) {
                                 String roomName = parts[1];
+                                if(chatRooms.keySet().contains(roomName.trim())) {
+                                	connection.sendTCP(new InfoMessage("That room already exists."));
+                                	return;
+                                }
                                 createChatRoom(roomName, connection);
                             }
                             break;
